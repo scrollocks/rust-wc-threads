@@ -1,0 +1,7 @@
+[package]
+name = "wc-threaded"
+version = "0.1.0"
+authors = ["Jamie Skipworth <jamie@skipworth.io>"]
+
+[dependencies]
+scoped_threadpool = "0.1.*"
