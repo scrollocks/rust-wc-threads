@@ -142,7 +142,6 @@ fn main() {
                     // Fire-off a worker thread
                     scoped.execute( move || {
                             let path = Path::new( &file_name ); 
-                            eprintln!( "{}\tstarted thread", path.display() );
                             
                             // Execute count_file() on it, parsing the response.
                             match count_file( path ) {
