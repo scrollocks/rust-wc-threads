@@ -1,10 +1,13 @@
 extern crate scoped_threadpool;
+extern crate glob;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
 use std::path::Path;
+use std::result::Result;
 use std::env;
 use scoped_threadpool::Pool;
+use glob::glob;
 
 /*
  * Given a string, count the number of 
@@ -129,28 +132,32 @@ fn main() {
 
     // Create a scope
     pool.scoped( |scoped| {            
-
+                                  
             // Iterate through file names. 
-            for file_name in files.iter() {     
+            for file_arg in files.iter() {     
 
-                // Fire-off a worker thread
-                scoped.execute( move || {
-                        let path = Path::new( &file_name ); 
-                        eprintln!( "{}\tstarted thread", path.display() );
-                        
-                        // Execute count_file() on it, parsing the response.
-                        match count_file( path ) {
-                            // Parse the result
-                            Ok( ( lines, words ) ) => {
-                                println!("{}\t{} lines\t{} words.", path.display(), lines, words );
-                            },
-                            Err( err ) => {
-                                panic!("Error - {}", err );
-                            }
+                // Match the glob pattern, filtering out bad paths
+                for file_name in glob(file_arg).unwrap().filter_map(Result::ok) {                    
 
-                        };
-                    } 
-                ); //scoped.execute
+                    // Fire-off a worker thread
+                    scoped.execute( move || {
+                            let path = Path::new( &file_name ); 
+                            eprintln!( "{}\tstarted thread", path.display() );
+                            
+                            // Execute count_file() on it, parsing the response.
+                            match count_file( path ) {
+                                // Parse the result
+                                Ok( ( lines, words ) ) => {
+                                    println!("{}\t{} lines\t{} words.", path.display(), lines, words );
+                                },
+                                Err( err ) => {
+                                    panic!("Error - {}", err );
+                                }
+
+                            };
+                        } 
+                    ); //scoped.execute
+                }
             } //for
         }
     ); //pool.scoped

@@ -5,3 +5,4 @@ authors = ["Jamie Skipworth <jamie@skipworth.io>"]
 
 [dependencies]
 scoped_threadpool = "0.1.*"
+glob = "0.2.11"
